@@ -483,6 +483,7 @@ function simulateHitCount(p, s, n, usePity, pityCount) {
     const ratio = (count / s) * 100;
     const oneInX = ratio > 0 ? (100 / ratio) : Infinity;
     resultList.push({ hits: hits, count: count, ratio: ratio, oneInX: oneInX });
+  }
   return resultList;
 }
 
