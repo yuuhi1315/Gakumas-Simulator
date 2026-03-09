@@ -713,7 +713,7 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
 
                 if (usePricing) {
                     const exactPrice = row.tries * 250 * jewelRate;
-                    const price = Math.ceil(exactPrice / 10) * 10;
+                    const price = Math.round(exactPrice);
                     tbody += `<td>${price.toLocaleString()} 円</td>`;
                 }
                 tbody += `<td class="bar-cell">${barHtml}</td></tr>`;
@@ -830,7 +830,7 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
                 text += `${r.probability} %\t${r.tries} 連\t${r.exchanges} 回`;
                 if (usePricing) {
                     const exactPrice = r.tries * 250 * jewelRate;
-                    const price = Math.ceil(exactPrice / 10) * 10;
+                    const price = Math.round(exactPrice);
                     text += `\t${price} 円`;
                 }
                 text += '\n';
@@ -873,7 +873,7 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
                 csv += `${r.probability} %,${r.tries} 連,${r.exchanges} 回`;
                 if (usePricing) {
                     const exactPrice = r.tries * 250 * jewelRate;
-                    const price = Math.ceil(exactPrice / 10) * 10;
+                    const price = Math.round(exactPrice);
                     csv += `,${price} 円`;
                 }
                 csv += '\n';
