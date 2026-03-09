@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             pityCount = parseInt(pityStr, 10);
             if (isNaN(pityCount) || pityCount <= 0) {
-                errorMessage.textContent = '天井までの回数は正の整数で入力してください。';
+                errorMessage.textContent = '天井までに必要なガシャ回数は正の整数で入力してください。';
                 return;
             }
         }
