@@ -70,9 +70,10 @@
             style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.8rem; margin-top: -0.4rem;">
             回そうと思っているガシャ回数を選択してください。</p>
           <div class="radio-group" id="gachaCountPresetParams">
+            <label><input type="radio" name="gachaCountPreset" value="1" checked> 1連</label>
             <label><input type="radio" name="gachaCountPreset" value="10"> 10連</label>
             <label><input type="radio" name="gachaCountPreset" value="50"> 50連</label>
-            <label><input type="radio" name="gachaCountPreset" value="100" checked> 100連</label>
+            <label><input type="radio" name="gachaCountPreset" value="100"> 100連</label>
             <label><input type="radio" name="gachaCountPreset" value="150"> 150連</label>
             <label><input type="radio" name="gachaCountPreset" value="200"> 200連</label>
             <label><input type="radio" name="gachaCountPreset" value="300"> 300連</label>
@@ -85,24 +86,7 @@
           </div>
         </div>
 
-        <!-- シミュレート回数 s -->
-        <div class="form-group box">
-          <label>シミュレート回数 (s)</label>
-          <p class="input-desc"
-            style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.8rem; margin-top: -0.4rem;">
-            シミュレートする回数を選択してください。 大きな値にするほど数値の信頼性が上がりますが、表示まで時間がかかることがあります。</p>
-          <div class="radio-group">
-            <label><input type="radio" name="setCountPreset" value="1000"> 1000回</label>
-            <label><input type="radio" name="setCountPreset" value="10000" checked> 1万回</label>
-            <label><input type="radio" name="setCountPreset" value="100000"> 10万回(推奨)</label>
-            <label><input type="radio" name="setCountPreset" value="1000000"> 100万回</label>
-            <label><input type="radio" name="setCountPreset" value="custom"> 任意のシミュレート回数</label>
-          </div>
-          <div class="input-wrapper custom-set" style="display: none; margin-top: 0.5rem;">
-            <input type="number" id="setCountInput" min="1" step="1" placeholder="例: 1000">
-            <span class="unit">回</span>
-          </div>
-        </div>
+        <!-- （シミュレート回数は下部へ移動） -->
 
         <!-- 天井考慮オプション -->
         <div class="form-group box">
@@ -131,18 +115,38 @@
           <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
             <input type="checkbox" id="usePricingCheckbox"
               style="accent-color: var(--primary-color); width: 1.1rem; height: 1.1rem;">
-            金額に換算する（1連あたり250ジュエル）
+            金額に換算する
           </label>
           <div id="pricingSettings"
             style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--surface-border);">
             <label style="font-size: 0.9rem;">ジュエルレート (j)</label>
-            <div class="radio-group" style="margin-top: 0.5rem; flex-direction: column; gap: 0.5rem;">
-              <label><input type="radio" name="jewelRatePreset" value="1.2"> ゲーム内:3,000円→2,500ジュエル</label>
-              <label><input type="radio" name="jewelRatePreset" value="1.19512195"> ゲーム内:9,800円→8,200ジュエル</label>
-              <label><input type="radio" name="jewelRatePreset" value="1.13207547"> 公式WEB SHOP:3,000円→2,650ジュエル</label>
+            <div class="radio-group"
+              style="margin-top: 0.5rem; flex-direction: column; align-items: flex-start; gap: 0.5rem;">
               <label><input type="radio" name="jewelRatePreset" value="1.12643678" checked> 公式WEB
                 SHOP:9,800円→8,700ジュエル(最安値)</label>
+              <label><input type="radio" name="jewelRatePreset" value="1.13207547"> 公式WEB SHOP:3,000円→2,650ジュエル</label>
+              <label><input type="radio" name="jewelRatePreset" value="1.19512195"> ゲーム内:9,800円→8,200ジュエル</label>
+              <label><input type="radio" name="jewelRatePreset" value="1.2"> ゲーム内:3,000円→2,500ジュエル</label>
             </div>
+          </div>
+        </div>
+
+        <!-- シミュレート回数 s -->
+        <div class="form-group box">
+          <label>シミュレート回数 (s)</label>
+          <p class="input-desc"
+            style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.8rem; margin-top: -0.4rem;">
+            シミュレートする回数を選択してください。 大きな値にするほど数値の信頼性が上がりますが、表示まで時間がかかることがあります。</p>
+          <div class="radio-group">
+            <label><input type="radio" name="setCountPreset" value="1000"> 1000回</label>
+            <label><input type="radio" name="setCountPreset" value="10000"> 1万回</label>
+            <label><input type="radio" name="setCountPreset" value="100000" checked> 10万回(推奨)</label>
+            <label><input type="radio" name="setCountPreset" value="1000000"> 100万回</label>
+            <label><input type="radio" name="setCountPreset" value="custom"> 任意のシミュレート回数</label>
+          </div>
+          <div class="input-wrapper custom-set" style="display: none; margin-top: 0.5rem;">
+            <input type="number" id="setCountInput" min="1" step="1" placeholder="例: 1000">
+            <span class="unit">回</span>
           </div>
         </div>
 
