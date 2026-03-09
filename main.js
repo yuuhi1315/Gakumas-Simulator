@@ -78,13 +78,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const checkComboConstraints = () => {
         const comboRadio = document.querySelector('input[name="probPreset"][value="0.75+1.00"]');
+        const comboLabel = comboRadio.closest('label');
         if (currentMode === 'try-count') {
             comboRadio.disabled = true;
+            comboLabel.style.display = 'none';
             if (comboRadio.checked) {
                 document.querySelector('input[name="probPreset"][value="0.75"]').checked = true;
             }
         } else {
             comboRadio.disabled = false;
+            comboLabel.style.display = 'inline-block';
         }
 
         const isCombo = document.querySelector('input[name="probPreset"]:checked').value === '0.75+1.00';
@@ -649,7 +652,7 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
         const th = (key, text) => `<th data-sort-key="${key}" class="sortable">${text}<span class="sort-icon"></span></th>`;
 
         if (mode === 'hit-count-combo') {
-            thead = `<tr>${th('p_hits', 'Pアイドル(枚)')}${th('s_hits', 'サポカ(枚)')}${th('ratio', '全体に占める割合')}${th('oneInX', '何人に1人か')}<th>グラフ</th></tr>`;
+            thead = `<tr>${th('p_hits', 'Pアイドル')}${th('s_hits', 'サポカ')}${th('ratio', '全体に占める割合')}${th('oneInX', '何人に1人か')}<th>グラフ</th></tr>`;
             const maxRatio = result.length > 0 ? Math.max(...result.map(r => r.ratio)) : 100;
 
             result.forEach(row => {
@@ -658,8 +661,8 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
                 let barHtml = `<div class="bar-chart"><div class="bar-fill" style="width: ${barWidth}%"></div></div>`;
 
                 tbody += `<tr>
-          <td>${row.p_hits}</td>
-          <td>${row.s_hits}</td>
+          <td>${row.p_hits} 枚</td>
+          <td>${row.s_hits} 枚</td>
           <td>${row.ratio.toFixed(2)} %</td>
           <td>${oneInXStr}</td>
           <td class="bar-cell">${barHtml}</td>
@@ -770,7 +773,11 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
             const pulls = urlParams.get('g') || 0;
             const pityCountVal = urlParams.get('pity') || 200;
             const exchanges = Math.floor(pulls / pityCountVal);
-            supplementaryText.textContent = `ガシャ回数${pulls}連、天井交換${exchanges}回可能`;
+            if (exchanges === 0) {
+                supplementaryText.textContent = `ガシャ回数${pulls}連、天井交換不可`;
+            } else {
+                supplementaryText.textContent = `ガシャ回数${pulls}連、天井交換${exchanges}回可能`;
+            }
             supplementaryText.style.display = 'block';
         } else if (mode === 'hit-count') {
             const urlParams = new URLSearchParams(urlQuery);
@@ -798,10 +805,10 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
         let text = '';
         if (currentMode === 'hit-count') {
             if (lastProbPreset === '0.75+1.00') {
-                text = 'Pアイドル(枚)\tサポカ(枚)\t全体に占める割合(%)\t何人に1人か\n';
+                text = 'Pアイドル\tサポカ\t全体に占める割合(%)\t何人に1人か\n';
                 lastResultData.forEach(r => {
                     let oneInXStr = formatOneInX(r.oneInX);
-                    text += `${r.p_hits}\t${r.s_hits}\t${r.ratio.toFixed(2)} %\t${oneInXStr}\n`;
+                    text += `${r.p_hits} 枚\t${r.s_hits} 枚\t${r.ratio.toFixed(2)} %\t${oneInXStr}\n`;
                 });
             } else {
                 text = '当たり回数\t全体に占める割合(%)\t何人に1人か\n';
@@ -840,10 +847,10 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
         let csv = '\uFEFF'; // BOM
         if (currentMode === 'hit-count') {
             if (lastProbPreset === '0.75+1.00') {
-                csv += 'Pアイドル(枚),サポカ(枚),全体に占める割合(%),何人に1人か\n';
+                csv += 'Pアイドル,サポカ,全体に占める割合(%),何人に1人か\n';
                 lastResultData.forEach(r => {
                     let oneInXStr = formatOneInX(r.oneInX);
-                    csv += `${r.p_hits},${r.s_hits},${r.ratio.toFixed(2)} %,${oneInXStr}\n`;
+                    csv += `${r.p_hits} 枚,${r.s_hits} 枚,${r.ratio.toFixed(2)} %,${oneInXStr}\n`;
                 });
             } else {
                 csv += '当たり回数,全体に占める割合(%),何人に1人か\n';
