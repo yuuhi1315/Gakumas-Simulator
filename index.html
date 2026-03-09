@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gakumas Gasha Simulator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <header>
+      <h1>Gakumas Gasha Simulator</h1>
+      <p>指定した当たり確率や試行条件に基づき、ガシャをシミュレーションします。</p>
+    </header>
+
+    <div class="tabs">
+      <button class="tab-button active" data-mode="hit-count">当たり回数算出モード</button>
+      <button class="tab-button" data-mode="try-count">試行回数算出モード</button>
+    </div>
+
+    <div id="modeDescription" class="mode-description">
+      任意の回数ガシャを回したとき、<br>何回当たるか実際に試行します。
+    </div>
+
+    <main>
+      <section class="input-section">
+        <!-- 当たり確率 p -->
+        <div class="form-group box">
+          <label>当たり確率 (p)</label>
+          <p class="input-desc"
+            style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.8rem; margin-top: -0.4rem;">
+            当たりを1回引くことができる確率を選択してください。</p>
+          <div class="radio-group">
+            <label><input type="radio" name="probPreset" value="0.75" checked> 0.75% (Pアイドル)</label>
+            <label><input type="radio" name="probPreset" value="1.00"> 1.00% (サポートカード)</label>
+            <label><input type="radio" name="probPreset" value="custom"> 任意の確率</label>
+          </div>
+          <div class="input-wrapper custom-prob" style="display: none;">
+            <input type="number" id="probInput" min="0.0001" max="100" step="0.0001" placeholder="例: 0.75">
+            <span class="unit">%</span>
+          </div>
+        </div>
+
+        <!-- 当てたい回数 x (試行回数算出モードのみ) 当たり確率の直下に移動 -->
+        <div class="form-group box" id="targetHitGroup" style="display: none;">
+          <label>当てたい回数 (x)</label>
+          <p class="input-desc"
+            style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.8rem; margin-top: -0.4rem;">
+            当たりを当てたい回数を選択してください。</p>
+          <div class="radio-group" id="targetHitPreset">
+            <label><input type="radio" name="targetHitPreset" value="1" checked> 1回(0凸)</label>
+            <label><input type="radio" name="targetHitPreset" value="2"> 2回(1凸)</label>
+            <label><input type="radio" name="targetHitPreset" value="4"> 4回(2凸)</label>
+            <label><input type="radio" name="targetHitPreset" value="7"> 7回(3凸)</label>
+            <label><input type="radio" name="targetHitPreset" value="11"> 11回(4凸)</label>
+            <label><input type="radio" name="targetHitPreset" value="custom"> 任意の回数</label>
+          </div>
+          <div class="input-wrapper custom-target-hit" style="display: none; margin-top: 0.5rem;">
+            <input type="number" id="targetHitInput" min="1" step="1" placeholder="例: 1">
+            <span class="unit">回</span>
+          </div>
+        </div>
+
+        <!-- 試行回数 n (当たり回数算出モードのみ) -> ガシャ回数 g -->
+        <div class="form-group box" id="tryCountGroup">
+          <label>ガシャ回数 (g)</label>
+          <p class="input-desc"
+            style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.8rem; margin-top: -0.4rem;">
+            回そうと思っているガシャ回数を選択してください。</p>
+          <div class="radio-group" id="gachaCountPresetParams">
+            <label><input type="radio" name="gachaCountPreset" value="10"> 10連</label>
+            <label><input type="radio" name="gachaCountPreset" value="50"> 50連</label>
+            <label><input type="radio" name="gachaCountPreset" value="100" checked> 100連</label>
+            <label><input type="radio" name="gachaCountPreset" value="150"> 150連</label>
+            <label><input type="radio" name="gachaCountPreset" value="200"> 200連</label>
+            <label><input type="radio" name="gachaCountPreset" value="300"> 300連</label>
+            <label><input type="radio" name="gachaCountPreset" value="400"> 400連</label>
+            <label><input type="radio" name="gachaCountPreset" value="custom"> 任意の回数</label>
+          </div>
+          <div class="input-wrapper custom-gacha" style="display: none; margin-top: 0.5rem;">
+            <input type="number" id="tryCountInput" min="1" step="1" placeholder="例: 100">
+            <span class="unit">連</span>
+          </div>
+        </div>
+
+        <!-- セット数 s -->
+        <div class="form-group box">
+          <label>セット数 (s)</label>
+          <p class="input-desc"
+            style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.8rem; margin-top: -0.4rem;">
+            試行回数を選択してください。 大きな値にするほど数値の信頼性が上がりますが、表示まで時間がかかることがあります。</p>
+          <div class="radio-group">
+            <label><input type="radio" name="setCountPreset" value="1000"> 1000回</label>
+            <label><input type="radio" name="setCountPreset" value="10000" checked> 1万回</label>
+            <label><input type="radio" name="setCountPreset" value="100000"> 10万回</label>
+            <label><input type="radio" name="setCountPreset" value="1000000"> 100万回</label>
+            <label><input type="radio" name="setCountPreset" value="custom"> 任意のセット数</label>
+          </div>
+          <div class="input-wrapper custom-set" style="display: none; margin-top: 0.5rem;">
+            <input type="number" id="setCountInput" min="1" step="1" placeholder="例: 1000">
+            <span class="unit">回</span>
+          </div>
+        </div>
+
+        <!-- 天井考慮オプション -->
+        <div class="form-group box">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox" id="usePityCheckbox"
+              style="accent-color: var(--primary-color); width: 1.1rem; height: 1.1rem;">
+            天井ポイントは全て交換する
+          </label>
+          <div id="pitySettings"
+            style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--surface-border);">
+            <label style="font-size: 0.9rem;">天井までの回数</label>
+            <div class="radio-group" style="margin-top: 0.5rem;">
+              <label><input type="radio" name="pityPreset" value="100"> 100回</label>
+              <label><input type="radio" name="pityPreset" value="200" checked> 200回</label>
+              <label><input type="radio" name="pityPreset" value="custom"> 任意の回数</label>
+            </div>
+            <div class="input-wrapper custom-pity" style="display: none;">
+              <input type="number" id="pityInput" min="1" step="1" placeholder="例: 200">
+              <span class="unit">回</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 金額換算オプション (試行回数算出モードのみ想定) -->
+        <div class="form-group box" id="pricingGroup" style="display: none;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox" id="usePricingCheckbox"
+              style="accent-color: var(--primary-color); width: 1.1rem; height: 1.1rem;">
+            金額に換算する（1連あたり250ジュエル）
+          </label>
+          <div id="pricingSettings"
+            style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--surface-border);">
+            <label style="font-size: 0.9rem;">ジュエルレート (j)</label>
+            <div class="radio-group" style="margin-top: 0.5rem; flex-direction: column; gap: 0.5rem;">
+              <label><input type="radio" name="jewelRatePreset" value="1.2"> ゲーム内:3,000円→2,500ジュエル</label>
+              <label><input type="radio" name="jewelRatePreset" value="1.19512195"> ゲーム内:9,800円→8,200ジュエル</label>
+              <label><input type="radio" name="jewelRatePreset" value="1.13207547"> 公式WEB SHOP:3,000円→2,650ジュエル</label>
+              <label><input type="radio" name="jewelRatePreset" value="1.12643678" checked> 公式WEB
+                SHOP:9,800円→8,700ジュエル</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- エラーメッセージ -->
+        <div id="errorMessage" class="error-message"></div>
+
+        <button id="executeButton" class="btn-primary">シミュレーション実行</button>
+      </section>
+
+      <!-- ローディング表示 -->
+      <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p>計算中...</p>
+      </div>
+
+      <section class="result-section" id="resultSection" style="display: none;">
+        <h2>シミュレーション結果</h2>
+
+        <div class="result-actions" style="align-items: flex-end;">
+          <div class="condition-summary" id="conditionSummary" style="width: 100%;"></div>
+          <div
+            style="display: flex; align-items: center; gap: 1rem; margin-left: auto; flex-wrap: wrap; justify-content: flex-end;">
+            <!-- 当たり回数算出モード時の補足用テキスト -->
+            <div id="supplementaryText"
+              style="display: none; font-size: 1rem; color: var(--primary-color); font-weight: bold;">
+            </div>
+            <div class="action-buttons" style="margin-left: 0;">
+              <button id="copyBtn" class="btn-secondary">コピー</button>
+              <button id="csvBtn" class="btn-secondary">CSVダウンロード</button>
+              <button id="shareBtn" class="btn-secondary">URL共有</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table id="resultTable">
+            <thead>
+              <tr id="tableHeader">
+                <!-- Javascriptで動的に書き換えます -->
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <!-- 結果データが挿入されます -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+
+</html>
