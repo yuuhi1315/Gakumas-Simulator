@@ -655,7 +655,7 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
         const th = (key, text) => `<th data-sort-key="${key}" class="sortable">${text}<span class="sort-icon"></span></th>`;
 
         if (mode === 'hit-count-combo') {
-            thead = `<tr>${th('p_hits', 'Pアイドル')}${th('s_hits', 'サポカ')}${th('ratio', '全体に占める割合')}${th('oneInX', '何人に1人か')}<th>グラフ</th></tr>`;
+            thead = `<tr>${th('p_hits', 'Pアイドル')}${th('s_hits', 'サポカ')}${th('ratio', '割合')}${th('oneInX', '何人に1人か')}<th>グラフ</th></tr>`;
             const maxRatio = result.length > 0 ? Math.max(...result.map(r => r.ratio)) : 100;
 
             result.forEach(row => {
@@ -672,7 +672,7 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
         </tr>`;
             });
         } else if (mode === 'hit-count') {
-            thead = `<tr>${th('hits', '当たり回数')}${th('ratio', '全体に占める割合')}${th('oneInX', '何人に1人か')}<th>グラフ</th></tr>`;
+            thead = `<tr>${th('hits', '当たり回数')}${th('ratio', '割合')}${th('oneInX', '何人に1人か')}<th>グラフ</th></tr>`;
             const maxRatio = result.length > 0 ? Math.max(...result.map(r => r.ratio)) : 100;
 
             result.forEach(row => {
@@ -804,13 +804,13 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
         let text = '';
         if (currentMode === 'hit-count') {
             if (lastProbPreset === '0.75+1.00') {
-                text = 'Pアイドル\tサポカ\t全体に占める割合(%)\t何人に1人か\n';
+                text = 'Pアイドル\tサポカ\t割合(%)\t何人に1人か\n';
                 lastResultData.forEach(r => {
                     let oneInXStr = formatOneInX(r.oneInX);
                     text += `${r.p_hits} 枚\t${r.s_hits} 枚\t${r.ratio.toFixed(2)} %\t${oneInXStr}\n`;
                 });
             } else {
-                text = '当たり回数\t全体に占める割合(%)\t何人に1人か\n';
+                text = '当たり回数\t割合(%)\t何人に1人か\n';
                 lastResultData.forEach(r => {
                     let oneInXStr = formatOneInX(r.oneInX);
                     let hitsDisplay = `${r.hits} 回${getTotsuString(lastProbPreset, r.hits)}`;
@@ -846,13 +846,13 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
         let csv = '\uFEFF'; // BOM
         if (currentMode === 'hit-count') {
             if (lastProbPreset === '0.75+1.00') {
-                csv += 'Pアイドル,サポカ,全体に占める割合(%),何人に1人か\n';
+                csv += 'Pアイドル,サポカ,割合(%),何人に1人か\n';
                 lastResultData.forEach(r => {
                     let oneInXStr = formatOneInX(r.oneInX);
                     csv += `${r.p_hits} 枚,${r.s_hits} 枚,${r.ratio.toFixed(2)} %,${oneInXStr}\n`;
                 });
             } else {
-                csv += '当たり回数,全体に占める割合(%),何人に1人か\n';
+                csv += '当たり回数,割合(%),何人に1人か\n';
                 lastResultData.forEach(r => {
                     let oneInXStr = formatOneInX(r.oneInX);
                     let hitsDisplay = `${r.hits} 回${getTotsuString(lastProbPreset, r.hits)}`;
