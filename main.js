@@ -582,8 +582,15 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
             if (usePricing) thead += `<th>金額(円)</th>`;
             thead += `</tr>`;
 
-            result.forEach(row => {
-                tbody += `<tr>
+            result.forEach((row, index) => {
+                let isGrayRow = false;
+                if (index < result.length - 1) {
+                    if (row.tries === result[index + 1].tries) {
+                        isGrayRow = true;
+                    }
+                }
+
+                tbody += `<tr${isGrayRow ? ' class="gray-row"' : ''}>
           <td>${row.probability} %</td>
           <td>${row.tries.toLocaleString()} 連</td>
           <td>${row.exchanges} 回</td>`;

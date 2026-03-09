@@ -453,6 +453,15 @@ tr:hover td {
   background: #e0f2fe;
 }
 
+tr.gray-row td {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+tr.gray-row:hover td {
+  background: #e2e8f0;
+}
+
 /* Animations */
 @media (max-width: 600px) {
   .app-container {
