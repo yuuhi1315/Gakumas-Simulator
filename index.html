@@ -21,7 +21,7 @@
     </div>
 
     <div id="modeDescription" class="mode-description">
-      任意の回数ガシャを回したとき、<br>何回当たるか実際に試行します。
+      指定した回数ガシャを回したとき、<br>何回当たるか指定したセット数分試行します。
     </div>
 
     <main>
@@ -85,18 +85,18 @@
           </div>
         </div>
 
-        <!-- セット数 s -->
+        <!-- シミュレート回数 s -->
         <div class="form-group box">
-          <label>セット数 (s)</label>
+          <label>シミュレート回数 (s)</label>
           <p class="input-desc"
             style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.8rem; margin-top: -0.4rem;">
-            試行回数を選択してください。 大きな値にするほど数値の信頼性が上がりますが、表示まで時間がかかることがあります。</p>
+            シミュレートする回数を選択してください。 大きな値にするほど数値の信頼性が上がりますが、表示まで時間がかかることがあります。</p>
           <div class="radio-group">
             <label><input type="radio" name="setCountPreset" value="1000"> 1000回</label>
             <label><input type="radio" name="setCountPreset" value="10000" checked> 1万回</label>
-            <label><input type="radio" name="setCountPreset" value="100000"> 10万回</label>
+            <label><input type="radio" name="setCountPreset" value="100000"> 10万回(推奨)</label>
             <label><input type="radio" name="setCountPreset" value="1000000"> 100万回</label>
-            <label><input type="radio" name="setCountPreset" value="custom"> 任意のセット数</label>
+            <label><input type="radio" name="setCountPreset" value="custom"> 任意のシミュレート回数</label>
           </div>
           <div class="input-wrapper custom-set" style="display: none; margin-top: 0.5rem;">
             <input type="number" id="setCountInput" min="1" step="1" placeholder="例: 1000">
@@ -141,7 +141,7 @@
               <label><input type="radio" name="jewelRatePreset" value="1.19512195"> ゲーム内:9,800円→8,200ジュエル</label>
               <label><input type="radio" name="jewelRatePreset" value="1.13207547"> 公式WEB SHOP:3,000円→2,650ジュエル</label>
               <label><input type="radio" name="jewelRatePreset" value="1.12643678" checked> 公式WEB
-                SHOP:9,800円→8,700ジュエル</label>
+                SHOP:9,800円→8,700ジュエル(最安値)</label>
             </div>
           </div>
         </div>

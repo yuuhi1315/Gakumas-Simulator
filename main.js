@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tryCountGroup.style.display = 'block';
                 targetHitGroup.style.display = 'none';
                 pricingGroup.style.display = 'none';
-                if (modeDescription) modeDescription.innerHTML = '任意の回数ガシャを回したとき、<br>何回当たるか実際に試行します。';
+                if (modeDescription) modeDescription.innerHTML = '指定した回数ガシャを回したとき、<br>何回当たるか指定したセット数分試行します。';
             } else {
                 tryCountGroup.style.display = 'none';
                 targetHitGroup.style.display = 'block';
@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Validate s
         if (isNaN(s) || s <= 0) {
-            errorMessage.textContent = 'セット数は正の整数で入力してください。';
+            errorMessage.textContent = 'シミュレート回数は正の整数で入力してください。';
             return;
         }
 
@@ -389,8 +389,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let conditionText = currentMode === 'hit-count'
-            ? `当たり確率: ${pDisplay}% | ガシャ回数: ${n}連 | セット数: ${sDisplay}`
-            : `当たり確率: ${pDisplay}% | 当てたい回数: ${x}回 | セット数: ${sDisplay}`;
+            ? `当たり確率: ${pDisplay}% | ガシャ回数: ${n}連 | シミュレート回数: ${sDisplay}`
+            : `当たり確率: ${pDisplay}% | 当てたい回数: ${x}回 | シミュレート回数: ${sDisplay}`;
         if (usePity) {
             conditionText += ` | 天井ポイントは全て交換する: ${pityCount}回`;
         }
