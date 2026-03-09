@@ -38,10 +38,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const copyBtn = document.getElementById('copyBtn');
     const csvBtn = document.getElementById('csvBtn');
-    const shareBtn = document.getElementById('shareBtn');
+    const sortResetBtn = document.getElementById('sortResetBtn');
     const supplementaryText = document.getElementById('supplementaryText');
     // Global State
     let currentMode = 'hit-count';
+    let originalResultData = null;
     let lastResultData = null;
     let lastProbPreset = null;
     let lastMode = null;
@@ -588,7 +589,9 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
                 const durationSec = ((endTime - startTime) / 1000).toFixed(1);
                 const finalSummaryText = `${conditionText} | 計算時間: ${durationSec}秒`;
 
-                lastResultData = data.result;
+                // ソートリセット用に元のも配列ごと保存
+                originalResultData = [...data.result];
+                lastResultData = [...data.result];
                 lastProbPreset = pPresetValue;
                 // 追加: 金額情報を渡す
                 renderResult(data.mode, data.result, finalSummaryText, urlParams.toString(), pPresetValue, usePricing, jewelRate);
@@ -793,10 +796,6 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
 
         resultSection.style.display = 'block';
         resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-        // Set share URL to current window state without reloading
-        const shareUrl = window.location.origin + window.location.pathname + '?' + urlQuery;
-        shareBtn.dataset.url = shareUrl;
     };
 
     // Export & Share Logic
@@ -889,15 +888,18 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
         document.body.removeChild(link);
     });
 
-    shareBtn.addEventListener('click', () => {
-        const url = shareBtn.dataset.url;
-        if (url) {
-            navigator.clipboard.writeText(url).then(() => {
-                const originalText = shareBtn.textContent;
-                shareBtn.textContent = 'URLコピー完了';
-                window.history.replaceState(null, '', url);
-                setTimeout(() => shareBtn.textContent = originalText, 2000);
-            });
-        }
+    sortResetBtn.addEventListener('click', () => {
+        if (!originalResultData) return;
+        lastResultData = [...originalResultData];
+        currentSortKey = null;
+        currentSortDir = 'desc';
+
+        const { tbody } = generateTableHTML(lastMode, lastResultData, lastProbPreset, lastUsePricing, lastJewelRate);
+        tableBody.innerHTML = tbody;
+
+        const headers = tableHeader.querySelectorAll('th.sortable');
+        headers.forEach(h => {
+            h.classList.remove('asc', 'desc');
+        });
     });
 });
