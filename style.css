@@ -427,9 +427,9 @@ th {
   font-size: 0.95rem;
   border-bottom: 2px solid var(--surface-border);
   white-space: nowrap;
+  text-align: center;
 }
 
-th:first-child,
 td:first-child {
   text-align: left;
 }
