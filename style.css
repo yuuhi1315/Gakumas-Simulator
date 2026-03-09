@@ -552,4 +552,40 @@ tr.gray-row .bar-fill {
     flex: 1;
     text-align: center;
   }
+
+  /* スマホ向けテーブル調整 */
+  table {
+    min-width: 100%;
+  }
+
+  th,
+  td {
+    padding: 0.5rem 0.3rem;
+    /* 余白を大幅に削減 */
+  }
+
+  th {
+    font-size: 0.75rem;
+    /* 見出しフォントを小さく */
+    white-space: normal;
+    /* はみ出し防止のため折り返し許可 */
+    word-break: keep-all;
+  }
+
+  td {
+    font-size: 0.8rem;
+    /* セルフォントも小さく */
+  }
+
+  .bar-cell {
+    width: 50px;
+    /* グラフの幅を狭くする */
+    min-width: 50px;
+  }
+
+  .sort-icon {
+    display: block;
+    /* アイコンを改行して幅を節約 */
+    margin: 0.2rem auto 0;
+  }
 }
