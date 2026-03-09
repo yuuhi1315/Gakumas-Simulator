@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const shareBtn = document.getElementById('shareBtn');
     const supplementaryText = document.getElementById('supplementaryText');
     // Global State
-    let currentMode = 'try-count';
+    let currentMode = 'hit-count';
     let lastResultData = null;
     let lastProbPreset = null;
     let lastMode = null;
