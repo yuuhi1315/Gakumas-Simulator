@@ -567,20 +567,28 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
         let thead = '';
         let tbody = '';
         if (mode === 'hit-count') {
-            thead = `<tr><th>当たり回数</th><th>全体に占める割合(%)</th><th>何人に1人か</th></tr>`;
+            thead = `<tr><th>当たり回数</th><th>全体に占める割合</th><th>何人に1人か</th><th>グラフ</th></tr>`;
+            const maxRatio = result.length > 0 ? Math.max(...result.map(r => r.ratio)) : 100;
+
             result.forEach(row => {
                 let oneInXStr = formatOneInX(row.oneInX);
                 let hitsDisplay = `${row.hits} 回${getTotsuString(probPresetValue, row.hits)}`;
+                let barWidth = maxRatio > 0 ? (row.ratio / maxRatio * 100) : 0;
+                let barHtml = `<div class="bar-chart"><div class="bar-fill" style="width: ${barWidth}%"></div></div>`;
+
                 tbody += `<tr>
           <td>${hitsDisplay}</td>
           <td>${row.ratio.toFixed(2)} %</td>
           <td>${oneInXStr}</td>
+          <td class="bar-cell">${barHtml}</td>
         </tr>`;
             });
         } else {
             thead = `<tr><th>確率</th><th>かかるガシャ回数</th><th>天井交換回数</th>`;
-            if (usePricing) thead += `<th>金額(円)</th>`;
-            thead += `</tr>`;
+            if (usePricing) thead += `<th>金額</th>`;
+            thead += `<th>グラフ</th></tr>`;
+
+            const maxTries = result.length > 0 ? Math.max(...result.map(r => r.tries)) : 1;
 
             result.forEach((row, index) => {
                 let isGrayRow = false;
@@ -589,6 +597,9 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
                         isGrayRow = true;
                     }
                 }
+
+                let barWidth = maxTries > 0 ? (row.tries / maxTries * 100) : 0;
+                let barHtml = `<div class="bar-chart"><div class="bar-fill" style="width: ${barWidth}%"></div></div>`;
 
                 tbody += `<tr${isGrayRow ? ' class="gray-row"' : ''}>
           <td>${row.probability} %</td>
@@ -599,7 +610,7 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
                     const price = Math.round(row.tries * 250 / jewelRate);
                     tbody += `<td>${price.toLocaleString()} 円</td>`;
                 }
-                tbody += `</tr>`;
+                tbody += `<td class="bar-cell">${barHtml}</td></tr>`;
             });
         }
         return { thead, tbody };
