@@ -689,7 +689,7 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
         </tr>`;
             });
         } else {
-            thead = `<tr>${th('probability', '確率')}${th('tries', 'かかるガシャ回数')}${th('exchanges', '天井交換回数')}`;
+            thead = `<tr>${th('probability', '確率')}${th('tries', 'かかるガシャ回数')}${th('exchanges', '天井交換')}`;
             if (usePricing) thead += th('tries', '金額');
             thead += `<th>グラフ</th></tr>`;
 
@@ -822,7 +822,7 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
             const usePricing = usePricingCheckbox.checked;
             const jewelRate = usePricing ? parseFloat(document.querySelector('input[name="jewelRatePreset"]:checked').value) : 0;
 
-            text = '確率\tかかるガシャ回数\t天井交換回数';
+            text = '確率\tかかるガシャ回数\t天井交換';
             if (usePricing) text += '\t金額(円)';
             text += '\n';
 
@@ -865,7 +865,7 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
             const usePricing = usePricingCheckbox.checked;
             const jewelRate = usePricing ? parseFloat(document.querySelector('input[name="jewelRatePreset"]:checked').value) : 0;
 
-            csv += '確率,かかるガシャ回数,天井交換回数';
+            csv += '確率,かかるガシャ回数,天井交換';
             if (usePricing) csv += ',金額(円)';
             csv += '\n';
 
