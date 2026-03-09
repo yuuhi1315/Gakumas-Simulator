@@ -65,10 +65,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 pricingGroup.style.display = 'block';
                 if (modeDescription) modeDescription.innerHTML = '指定した回数当てるには、<br>何%の確率で何回ガシャを回せばよいか算出します。';
             }
+            checkComboConstraints();
             errorMessage.textContent = '';
             resultSection.style.display = 'none';
         });
     });
+
+    const checkComboConstraints = () => {
+        const comboRadio = document.querySelector('input[name="probPreset"][value="0.75+1.00"]');
+        if (currentMode === 'try-count') {
+            comboRadio.disabled = true;
+            if (comboRadio.checked) {
+                document.querySelector('input[name="probPreset"][value="0.75"]').checked = true;
+            }
+        } else {
+            comboRadio.disabled = false;
+        }
+
+        const isCombo = document.querySelector('input[name="probPreset"]:checked').value === '0.75+1.00';
+        const usePityContainer = document.getElementById('usePityCheckbox').closest('.form-group');
+        if (isCombo) {
+            usePityContainer.style.display = 'none';
+            usePityCheckbox.checked = false;
+        } else {
+            usePityContainer.style.display = 'block';
+        }
+    };
 
     const updateTargetHitOptions = (probType) => {
         let optionsHTML = '';
@@ -117,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 customProbWrapper.style.display = 'none';
             }
             updateTargetHitOptions(e.target.value);
+            checkComboConstraints();
         });
     });
 
@@ -282,6 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     loadParams();
+    checkComboConstraints();
 
     // Execution
     executeButton.addEventListener('click', () => {
@@ -295,14 +319,16 @@ document.addEventListener('DOMContentLoaded', () => {
             pStr = probInput.value;
             pDisplay = pStr;
         }
-        const pVal = parseFloat(pStr);
-
-        // Validate p
-        if (isNaN(pVal) || pVal <= 0 || pVal > 100) {
-            errorMessage.textContent = '当たり確率は 0 より大きく 100 以下で入力してください。';
-            return;
+        let pVal = 0;
+        let p = 0;
+        if (pStr !== '0.75+1.00') {
+            pVal = parseFloat(pStr);
+            if (isNaN(pVal) || pVal <= 0 || pVal > 100) {
+                errorMessage.textContent = '当たり確率は 0 より大きく 100 以下で入力してください。';
+                return;
+            }
+            p = pVal / 100;
         }
-        const p = pVal / 100;
 
         // Get s
         let sStr = document.querySelector('input[name="setCountPreset"]:checked').value;
@@ -343,17 +369,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let usePity = usePityCheckbox.checked;
-        let pityCount = null;
-        if (usePity) {
-            let pityStr = document.querySelector('input[name="pityPreset"]:checked').value;
-            if (pityStr === 'custom') {
-                pityStr = pityInput.value;
-            }
-            pityCount = parseInt(pityStr, 10);
-            if (isNaN(pityCount) || pityCount <= 0) {
-                errorMessage.textContent = '天井までに必要なガシャ回数は正の整数で入力してください。';
-                return;
-            }
+        let pityStr = document.querySelector('input[name="pityPreset"]:checked').value;
+        if (pityStr === 'custom') {
+            pityStr = pityInput.value;
+        }
+        let pityCount = parseInt(pityStr, 10);
+        if (isNaN(pityCount) || pityCount <= 0) {
+            errorMessage.textContent = '天井までに必要なガシャ回数は正の整数で入力してください。';
+            return;
         }
 
         let usePricing = usePricingCheckbox.checked && currentMode === 'try-count';
@@ -388,11 +411,16 @@ document.addEventListener('DOMContentLoaded', () => {
             urlParams.set('rate', document.querySelector('input[name="jewelRatePreset"]:checked').value);
         }
 
-        let conditionText = currentMode === 'hit-count'
-            ? `当たり確率: ${pDisplay}% | ガシャ回数: ${n}連 | シミュレート回数: ${sDisplay}`
-            : `当たり確率: ${pDisplay}% | 当てたい回数: ${x}回 | シミュレート回数: ${sDisplay}`;
-        if (usePity) {
-            conditionText += ` | 天井ポイントは全て交換する: ${pityCount}回`;
+        let conditionText = '';
+        if (pPresetValue === '0.75+1.00') {
+            conditionText = `当たり確率: 0.75%(Pアイドル)+1.00%(サポカ) | ガシャ回数: ${n}連 | シミュレート回数: ${sDisplay}`;
+        } else {
+            conditionText = currentMode === 'hit-count'
+                ? `当たり確率: ${pDisplay}% | ガシャ回数: ${n}連 | シミュレート回数: ${sDisplay}`
+                : `当たり確率: ${pDisplay}% | 当てたい回数: ${x}回 | シミュレート回数: ${sDisplay}`;
+            if (usePity) {
+                conditionText += ` | 天井ポイントは全て交換する: ${pityCount}回`;
+            }
         }
         if (usePricing) {
             const selectedRateLabel = document.querySelector('input[name="jewelRatePreset"]:checked').parentElement.textContent.trim();
@@ -411,7 +439,11 @@ self.addEventListener('message', function(e) {
   const pityCount = data.pityCount;
 
   try {
-    if (mode === 'hit-count') {
+    if (mode === 'hit-count-combo') {
+      const n = data.n;
+      const result = simulateHitCountCombo(s, n);
+      self.postMessage({ success: true, mode: mode, result: result });
+    } else if (mode === 'hit-count') {
       const n = data.n;
       const result = simulateHitCount(p, s, n, usePity, pityCount);
       self.postMessage({ success: true, mode: mode, result: result });
@@ -451,7 +483,43 @@ function simulateHitCount(p, s, n, usePity, pityCount) {
     const ratio = (count / s) * 100;
     const oneInX = ratio > 0 ? (100 / ratio) : Infinity;
     resultList.push({ hits: hits, count: count, ratio: ratio, oneInX: oneInX });
+  return resultList;
+}
+
+function simulateHitCountCombo(s, n) {
+  const p1 = 0.0075;
+  const p2 = 0.01;
+  const counts = {};
+  for (let i = 0; i < s; i++) {
+    let h1 = 0;
+    let h2 = 0;
+    for (let j = 0; j < n; j++) {
+      const r = Math.random();
+      if (r < p1) {
+        h1++;
+      } else if (r < p1 + p2) {
+        h2++;
+      }
+    }
+    const key = h1 + "," + h2;
+    counts[key] = (counts[key] || 0) + 1;
   }
+  const resultList = [];
+  for (const key in counts) {
+    const parts = key.split(",");
+    const h1 = parseInt(parts[0], 10);
+    const h2 = parseInt(parts[1], 10);
+    const count = counts[key];
+    const ratio = (count / s) * 100;
+    if (ratio >= 0.01) {
+      const oneInX = ratio > 0 ? (100 / ratio) : Infinity;
+      resultList.push({ p_hits: h1, s_hits: h2, count: count, ratio: ratio, oneInX: oneInX });
+    }
+  }
+  resultList.sort((a, b) => {
+    if (b.p_hits !== a.p_hits) return b.p_hits - a.p_hits;
+    return b.s_hits - a.s_hits;
+  });
   return resultList;
 }
 
@@ -529,8 +597,13 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
             worker.terminate();
         };
 
+        let workerMode = currentMode;
+        if (currentMode === 'hit-count' && pPresetValue === '0.75+1.00') {
+            workerMode = 'hit-count-combo';
+        }
+
         worker.postMessage({
-            mode: currentMode,
+            mode: workerMode,
             p: p,
             s: s,
             n: n,
@@ -566,7 +639,24 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
     const generateTableHTML = (mode, result, probPresetValue, usePricing, jewelRate) => {
         let thead = '';
         let tbody = '';
-        if (mode === 'hit-count') {
+        if (mode === 'hit-count-combo') {
+            thead = `<tr><th>Pアイドル(枚)</th><th>サポカ(枚)</th><th>全体に占める割合</th><th>何人に1人か</th><th>グラフ</th></tr>`;
+            const maxRatio = result.length > 0 ? Math.max(...result.map(r => r.ratio)) : 100;
+
+            result.forEach(row => {
+                let oneInXStr = formatOneInX(row.oneInX);
+                let barWidth = maxRatio > 0 ? (row.ratio / maxRatio * 100) : 0;
+                let barHtml = `<div class="bar-chart"><div class="bar-fill" style="width: ${barWidth}%"></div></div>`;
+
+                tbody += `<tr>
+          <td>${row.p_hits}</td>
+          <td>${row.s_hits}</td>
+          <td>${row.ratio.toFixed(2)} %</td>
+          <td>${oneInXStr}</td>
+          <td class="bar-cell">${barHtml}</td>
+        </tr>`;
+            });
+        } else if (mode === 'hit-count') {
             thead = `<tr><th>当たり回数</th><th>全体に占める割合</th><th>何人に1人か</th><th>グラフ</th></tr>`;
             const maxRatio = result.length > 0 ? Math.max(...result.map(r => r.ratio)) : 100;
 
@@ -623,7 +713,14 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
         tableHeader.innerHTML = thead;
         tableBody.innerHTML = tbody;
 
-        if (mode === 'hit-count') {
+        if (mode === 'hit-count-combo') {
+            const urlParams = new URLSearchParams(urlQuery);
+            const pulls = urlParams.get('g') || 0;
+            const pityCountVal = urlParams.get('pity') || 200;
+            const exchanges = Math.floor(pulls / pityCountVal);
+            supplementaryText.textContent = `ガシャ回数${pulls}連、天井交換${exchanges}回可能`;
+            supplementaryText.style.display = 'block';
+        } else if (mode === 'hit-count') {
             const urlParams = new URLSearchParams(urlQuery);
             const pulls = urlParams.get('g') || 0;
             const usePity = urlParams.has('pity');
@@ -648,12 +745,20 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
         if (!lastResultData) return;
         let text = '';
         if (currentMode === 'hit-count') {
-            text = '当たり回数\t全体に占める割合(%)\t何人に1人か\n';
-            lastResultData.forEach(r => {
-                let oneInXStr = formatOneInX(r.oneInX);
-                let hitsDisplay = `${r.hits} 回${getTotsuString(lastProbPreset, r.hits)}`;
-                text += `${hitsDisplay}\t${r.ratio.toFixed(2)} %\t${oneInXStr}\n`;
-            });
+            if (lastProbPreset === '0.75+1.00') {
+                text = 'Pアイドル(枚)\tサポカ(枚)\t全体に占める割合(%)\t何人に1人か\n';
+                lastResultData.forEach(r => {
+                    let oneInXStr = formatOneInX(r.oneInX);
+                    text += `${r.p_hits}\t${r.s_hits}\t${r.ratio.toFixed(2)} %\t${oneInXStr}\n`;
+                });
+            } else {
+                text = '当たり回数\t全体に占める割合(%)\t何人に1人か\n';
+                lastResultData.forEach(r => {
+                    let oneInXStr = formatOneInX(r.oneInX);
+                    let hitsDisplay = `${r.hits} 回${getTotsuString(lastProbPreset, r.hits)}`;
+                    text += `${hitsDisplay}\t${r.ratio.toFixed(2)} %\t${oneInXStr}\n`;
+                });
+            }
         } else {
             const usePricing = usePricingCheckbox.checked;
             const jewelRate = usePricing ? parseFloat(document.querySelector('input[name="jewelRatePreset"]:checked').value) : 0;
@@ -682,12 +787,20 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
         if (!lastResultData) return;
         let csv = '\uFEFF'; // BOM
         if (currentMode === 'hit-count') {
-            csv += '当たり回数,全体に占める割合(%),何人に1人か\n';
-            lastResultData.forEach(r => {
-                let oneInXStr = formatOneInX(r.oneInX);
-                let hitsDisplay = `${r.hits} 回${getTotsuString(lastProbPreset, r.hits)}`;
-                csv += `${hitsDisplay},${r.ratio.toFixed(2)} %,${oneInXStr}\n`;
-            });
+            if (lastProbPreset === '0.75+1.00') {
+                csv += 'Pアイドル(枚),サポカ(枚),全体に占める割合(%),何人に1人か\n';
+                lastResultData.forEach(r => {
+                    let oneInXStr = formatOneInX(r.oneInX);
+                    csv += `${r.p_hits},${r.s_hits},${r.ratio.toFixed(2)} %,${oneInXStr}\n`;
+                });
+            } else {
+                csv += '当たり回数,全体に占める割合(%),何人に1人か\n';
+                lastResultData.forEach(r => {
+                    let oneInXStr = formatOneInX(r.oneInX);
+                    let hitsDisplay = `${r.hits} 回${getTotsuString(lastProbPreset, r.hits)}`;
+                    csv += `${hitsDisplay},${r.ratio.toFixed(2)} %,${oneInXStr}\n`;
+                });
+            }
         } else {
             const usePricing = usePricingCheckbox.checked;
             const jewelRate = usePricing ? parseFloat(document.querySelector('input[name="jewelRatePreset"]:checked').value) : 0;
