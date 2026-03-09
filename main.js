@@ -40,10 +40,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const csvBtn = document.getElementById('csvBtn');
     const shareBtn = document.getElementById('shareBtn');
     const supplementaryText = document.getElementById('supplementaryText');
-
-    let currentMode = 'hit-count';
-    let lastResultData = null; // for CSV and Copy
-    let lastProbPreset = null; // for CSV and Copy
+    // Global State
+    let currentMode = 'try-count';
+    let lastResultData = null;
+    let lastProbPreset = null;
+    let lastMode = null;
+    let lastUsePricing = false;
+    let lastJewelRate = 0;
+    let currentSortKey = null;
+    let currentSortDir = 'desc'; // for CSV and Copy
 
     const modeDescription = document.getElementById('modeDescription');
 
@@ -640,8 +645,11 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
     const generateTableHTML = (mode, result, probPresetValue, usePricing, jewelRate) => {
         let thead = '';
         let tbody = '';
+
+        const th = (key, text) => `<th data-sort-key="${key}" class="sortable">${text}<span class="sort-icon"></span></th>`;
+
         if (mode === 'hit-count-combo') {
-            thead = `<tr><th>Pアイドル(枚)</th><th>サポカ(枚)</th><th>全体に占める割合</th><th>何人に1人か</th><th>グラフ</th></tr>`;
+            thead = `<tr>${th('p_hits', 'Pアイドル(枚)')}${th('s_hits', 'サポカ(枚)')}${th('ratio', '全体に占める割合')}${th('oneInX', '何人に1人か')}<th>グラフ</th></tr>`;
             const maxRatio = result.length > 0 ? Math.max(...result.map(r => r.ratio)) : 100;
 
             result.forEach(row => {
@@ -658,7 +666,7 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
         </tr>`;
             });
         } else if (mode === 'hit-count') {
-            thead = `<tr><th>当たり回数</th><th>全体に占める割合</th><th>何人に1人か</th><th>グラフ</th></tr>`;
+            thead = `<tr>${th('hits', '当たり回数')}${th('ratio', '全体に占める割合')}${th('oneInX', '何人に1人か')}<th>グラフ</th></tr>`;
             const maxRatio = result.length > 0 ? Math.max(...result.map(r => r.ratio)) : 100;
 
             result.forEach(row => {
@@ -675,8 +683,8 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
         </tr>`;
             });
         } else {
-            thead = `<tr><th>確率</th><th>かかるガシャ回数</th><th>天井交換回数</th>`;
-            if (usePricing) thead += `<th>金額</th>`;
+            thead = `<tr>${th('probability', '確率')}${th('tries', 'かかるガシャ回数')}${th('exchanges', '天井交換回数')}`;
+            if (usePricing) thead += th('tries', '金額');
             thead += `<th>グラフ</th></tr>`;
 
             const maxTries = result.length > 0 ? Math.max(...result.map(r => r.tries)) : 1;
@@ -707,12 +715,55 @@ function simulateTryCount(p, s, x, usePity, pityCount) {
         return { thead, tbody };
     };
 
+    const attachSortListeners = () => {
+        const headers = tableHeader.querySelectorAll('th.sortable');
+        headers.forEach(header => {
+            header.addEventListener('click', () => {
+                const key = header.getAttribute('data-sort-key');
+                if (currentSortKey === key) {
+                    currentSortDir = currentSortDir === 'desc' ? 'asc' : 'desc';
+                } else {
+                    currentSortKey = key;
+                    currentSortDir = 'desc';
+                }
+
+                lastResultData.sort((a, b) => {
+                    let valA = a[key];
+                    let valB = b[key];
+                    if (valA === Infinity) valA = 9999999999;
+                    if (valB === Infinity) valB = 9999999999;
+
+                    if (valA < valB) return currentSortDir === 'desc' ? 1 : -1;
+                    if (valA > valB) return currentSortDir === 'desc' ? -1 : 1;
+                    return 0;
+                });
+
+                const { tbody } = generateTableHTML(lastMode, lastResultData, lastProbPreset, lastUsePricing, lastJewelRate);
+                tableBody.innerHTML = tbody;
+
+                headers.forEach(h => {
+                    h.classList.remove('asc', 'desc');
+                });
+                header.classList.add(currentSortDir);
+            });
+        });
+    };
+
     const renderResult = (mode, result, summaryText, urlQuery, probPresetValue, usePricing, jewelRate) => {
+        lastMode = mode;
+        lastProbPreset = probPresetValue;
+        lastUsePricing = usePricing;
+        lastJewelRate = jewelRate;
+        currentSortKey = null;
+        currentSortDir = 'desc';
+
         conditionSummary.textContent = summaryText;
 
         const { thead, tbody } = generateTableHTML(mode, result, probPresetValue, usePricing, jewelRate);
         tableHeader.innerHTML = thead;
         tableBody.innerHTML = tbody;
+
+        attachSortListeners();
 
         if (mode === 'hit-count-combo') {
             const urlParams = new URLSearchParams(urlQuery);

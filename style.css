@@ -430,6 +430,41 @@ th {
   text-align: center;
 }
 
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+th.sortable:hover {
+  background-color: #e0f2fe;
+}
+
+.sort-icon {
+  display: inline-block;
+  margin-left: 0.4rem;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  width: 1em;
+}
+
+th.sortable .sort-icon::after {
+  content: '↕';
+  opacity: 0.4;
+}
+
+th.sortable.asc .sort-icon::after {
+  content: '▲';
+  opacity: 1;
+  color: #0284c7;
+}
+
+th.sortable.desc .sort-icon::after {
+  content: '▼';
+  opacity: 1;
+  color: #0284c7;
+}
+
 td:first-child {
   text-align: left;
 }
