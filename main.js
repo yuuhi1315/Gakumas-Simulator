@@ -58,12 +58,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 tryCountGroup.style.display = 'block';
                 targetHitGroup.style.display = 'none';
                 pricingGroup.style.display = 'none';
-                if (modeDescription) modeDescription.innerHTML = '指定した回数ガシャを回したとき、<br>何回当たるか指定したセット数分試行します。';
+                if (modeDescription) modeDescription.innerHTML = '指定した回数ガシャを回したとき、<br>何回当たるか指定したシミュレート回数だけ試行します。';
             } else {
                 tryCountGroup.style.display = 'none';
                 targetHitGroup.style.display = 'block';
                 pricingGroup.style.display = 'block';
-                if (modeDescription) modeDescription.innerHTML = '任意の回数当たるには、<br>何%の確率で何回で済むか実際に試行します。';
+                if (modeDescription) modeDescription.innerHTML = '指定した回数当てるには、<br>何%の確率で何回ガシャを回せばよいか算出します。';
             }
             errorMessage.textContent = '';
             resultSection.style.display = 'none';
